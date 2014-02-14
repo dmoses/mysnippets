@@ -14,6 +14,7 @@
         </kml>
 
     </xsl:template>
+    
     <xsl:template name="formatDate">
         <xsl:param name="dateTime" />
         <xsl:variable name="date" select="substring-before($dateTime, 'T')" />
@@ -24,11 +25,6 @@
         <xsl:value-of select="concat($year, '-', $month, '-', $day)" />
     </xsl:template>
     
-    <xsl:template name="formatTime">
-        <xsl:param name="dateTime" />
-        <xsl:value-of select="substring-after($dateTime, 'T')" />
-    </xsl:template>
-    
     <xsl:template match="doc">
 
         <Placemark>
@@ -36,9 +32,7 @@
                 <xsl:value-of select="normalize-space(arr[@name='mods_titleInfo_title_ms'])"/>
             </name>
             <description><xsl:text disable-output-escaping="yes">&lt;![CDATA[</xsl:text>
-                <xsl:text disable-output-escaping="yes"><![CDATA[<table border="0" cellspacing="1" cellpadding="2">
-<tr>
-<td>
+                <xsl:text disable-output-escaping="yes"><![CDATA[
 <p><a href="/islandora/object/]]></xsl:text><xsl:value-of
                     select="normalize-space(str[@name='PID'])"/><xsl:text disable-output-escaping="yes"><![CDATA[" target="_blank">]]></xsl:text><xsl:value-of
                         select="normalize-space(arr[@name='mods_titleInfo_title_ms'])"/><xsl:text
@@ -48,7 +42,8 @@
 <p>Publisher: ]]></xsl:text><xsl:value-of
                         select="normalize-space(arr[@name='mods_originInfo_publisher_ms'])"/><xsl:text disable-output-escaping="yes"><![CDATA[</p>]]></xsl:text>
                 </xsl:if>
-                <xsl:text disable-output-escaping="yes"><![CDATA[<p>Date: ]]></xsl:text>
+                <xsl:text disable-output-escaping="yes">
+<![CDATA[<p>Date: ]]></xsl:text>
                 <!-- <xsl:value-of
                     select="normalize-space(arr[@name='dc.date'])"/> -->
                 
@@ -57,9 +52,7 @@
                         select="/response/result/doc/date[@name='mods_originInfo_dateIssued_dt']" />
                 </xsl:call-template>
                 <xsl:text disable-output-escaping="yes"><![CDATA[</p>
-</td>
-</tr>
-</table>          
+        
 ]]></xsl:text>
                 <xsl:text disable-output-escaping="yes">]]&gt;</xsl:text></description>
                 <Point>
