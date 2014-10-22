@@ -57,14 +57,20 @@ One of the key features we are missing in our current backup plan is remote stor
 * Additional preservation metadata should be recorded as part of the backup process (eg. a checksum of files at time of backup should be recorded and compared)
 
 **Restore Use Cases**
+
 * a user is able to restore a full backup
 * a user is able to selectively restore an object (eg. restore a single Islandora object)
 
 ** Report Use Cases**
+
 * a user can review the list of backups performed.
 * a user can compare the checksum of a backed up item with the checksum originally recorded.
 
 ### Implementation
+
+![Backup Flow Diagram](https://www.lucidchart.com/publicSegments/view/5447a591-b3c0-460b-868d-74370a004d3d/image.png)
+
+**Backup and Migrate Module** 
 
 Drupal has a well supported module - [Backup and Migrate](https://www.drupal.org/project/backup_migrate) - that provides a flexible backup framework for Drupal sites.  Using an existing Drupal module that provides a fair amount of functionality and support for many of the use cases 'out-of-the-box' may be more sustainable.  Adopting an exist module also allows potential contributions back to the module, and by managing this function in the Drupal layer may make the solution more resilent in the future with Fedora4 integration.
 
@@ -85,6 +91,8 @@ Given the plugin architecture of the [Backup and Migrate](https://www.drupal.org
 * Backup and Migrate Dropbox - Backup to Dropbox (likewise tested this and it doesn't work with the current version of B&M)
 * Backup and Migrate Rackspace Cloudfiles - Backup to Rackspace Cloudfiles
 * HPCloud - Backup to HPCloud
+
+**Islandora BagIt Module**
 
 When you combine the functionality of the [Backup and Migrate](https://www.drupal.org/project/backup_migrate) module with Mark Jordan's [Islandora Bagit](https://github.com/islandora/islandora_bagit) module a number of our Islandora object use cases become possible. The [Islandora Bagit](https://github.com/islandora/islandora_bagit) module packages up Islandora (Fedora) digital objects and their metadata into a format that can be shared between applications/systems. The module provides a plugin architecture for creating bags and includes:
 
@@ -120,7 +128,10 @@ This approach will require additional thought.  The potential benefits of this a
 * complicates the restore process. Would we need to embed the associated Islandora CModel as part of the bag? Would we bag up objects based on their content models? eg. use a directory structure to separate those out? Additional layers of admin screens would be needed.
 * the B&M module provides a note field for the backup ... would we insert cmodel details there?
 
-What else?
+
+
+Further discussion ?
+
 
 
 
