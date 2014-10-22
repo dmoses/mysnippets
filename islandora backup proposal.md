@@ -68,7 +68,7 @@ One of the key features we are missing in our current backup plan is remote stor
 
 ### Implementation
 
-![Backup Flow Diagram](https://www.lucidchart.com/publicSegments/view/5447a591-b3c0-460b-868d-74370a004d3d/image.png)
+![Backup Flow Diagram](https://www.lucidchart.com/publicSegments/view/5447a72d-d55c-445a-8649-66a10a00c0e0/image.png)
 
 **Backup and Migrate Module** 
 
