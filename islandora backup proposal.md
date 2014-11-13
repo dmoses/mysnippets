@@ -11,7 +11,7 @@ These activities<sup>1</sup> typically include:
      * fixity checking
      * documentation of file formats
 
-This proposal is an attempt to provide a discussion starter about a bitstream copying (implementing a a backup strategy/plan) within the Islandora context.
+This proposal is an attempt to provide a discussion starter about an offsite/offline bitstream copying strategy related to digital objects within the Islandora context and isn't intended to replace a standard/full system backup plan. 
 
 ## Backup Plan
 
@@ -24,47 +24,48 @@ At UPEI our Backup Plan includes a backup to both the network filesystem (spinni
 We use [Bacula](http://www.bacula.org/) to manage our backups.
 
 ### What gets backed up?
+This section is intend to provide an overview of our existing backup plan.
 
-In addition to our production servers, we backup our database servers, and storage for data created during our digitization workflow.
+In addition to our production servers, we backup our database servers, and data created during our digitization workflow (our working data prior to loading into the repo) which resides on the internal network. 
 
-## Implementing a Generic Backup Strategy for Islandora
+## Implementing a Generic Backup Strategy for Islandora Objects
 
 One of the key features we are missing in our current backup plan is remote storage of assets. We've explored various options and Paul Pound developed the [Vault module](https://github.com/ppound/cirrostratus_assimilate) that utilizes [CloudSync](https://wiki.duraspace.org/display/CLOUDSYNC11/Fedora+CloudSync+1.1) to store Fedora content to a [DuraCloud](https://wiki.duraspace.org/display/DURACLOUDDOC/Release+Notes) instance.
 
 ### Proposed Use Cases
 
 **Backup Use Cases**
-* a user is able to back up their Islandora site (Drupal filesystem, Drupal database, Fedora digital objects)
-* a user is able to back up selected portions of their Islandora site (eg. just the Drupal filesystem, and/or the database, and/or the Fedora objects)
-* a user can schedule backups
-* a user can manually initiate a backup
-* a user is able to direct their backup to a multiple destinations. For example:
+* an islandora admin/repository manager is able to back up their Islandora site (Drupal filesystem, Drupal database, Fedora digital objects)
+* a islandora admin/repository manager is able to back up selected portions of their Islandora site (eg. just the Drupal filesystem, and/or the database, and/or the Fedora objects)
+* an islandora admin/repository manager can schedule backups
+* an islandora admin/repository manager can manually initiate a backup
+* aislandora admin/repository manager is able to direct their backup to a multiple destinations. For example:
  * the same filesystem
  * a local network filesystem
  * a cloud service
-* there can be multiple methods for transferring backups. For example:
+* the application can leverage multiple methods for transferring backups. For example:
  * FTP
  * SFTP
  * RSync
  * BitTorrent
  * Swift
  * other
-* a user is able to construct various backup scenarios. For example:
-* create a backup of the Drupal filesystem and database and download it to their local machine
-* create a backup of Islandora objects and select Amazon S3 as a destination.
+* an authorized user is able to construct various backup scenarios. For example:
+ * create a backup of the Drupal filesystem and database and download it to their local machine
+ * create a backup of Islandora objects and select Amazon S3 as a destination.
 * For Islandora Objects, a user may want to select the full FOXML object or only selected datastreams
-* A backup of an Islandora object should record a [replication event](http://id.loc.gov/vocabulary/preservation/eventType/rep.html) to the AUDIT datastream
-* Additional preservation metadata should be recorded as part of the backup process (eg. a checksum of files at time of backup should be recorded and compared)
+* A backup of an Islandora object should record a [replication event] (http://id.loc.gov/vocabulary/preservation/eventType/rep.html) to the AUDIT datastream
+ * Additional preservation metadata should be recorded as part of the backup process (eg. a checksum of files at time of backup should be recorded and compared)
 
 **Restore Use Cases**
 
-* a user is able to restore a full backup
-* a user is able to selectively restore an object (eg. restore a single Islandora object)
+* an authorized user is able to restore from a previous backup
+* an authorized user is able to selectively restore an object (eg. restore a single Islandora object)
 
 ** Report Use Cases**
 
-* a user can review the list of backups performed.
-* a user can compare the checksum of a backed up item with the checksum originally recorded.
+* an authorized user can review the list of backups performed.
+* an authorized user can compare the checksum of a backed up item with the checksum originally recorded.
 
 ### Implementation
 
@@ -92,6 +93,8 @@ Given the plugin architecture of the [Backup and Migrate](https://www.drupal.org
 * Backup and Migrate Rackspace Cloudfiles - Backup to Rackspace Cloudfiles
 * HPCloud - Backup to HPCloud
 
+I had mixed experiences when trying to implement some of these modules, so further investigation is required.
+
 **Islandora BagIt Module**
 
 When you combine the functionality of the [Backup and Migrate](https://www.drupal.org/project/backup_migrate) module with Mark Jordan's [Islandora Bagit](https://github.com/islandora/islandora_bagit) module a number of our Islandora object use cases become possible. The [Islandora Bagit](https://github.com/islandora/islandora_bagit) module packages up Islandora (Fedora) digital objects and their metadata into a format that can be shared between applications/systems. The module provides a plugin architecture for creating bags and includes:
@@ -104,7 +107,7 @@ When you combine the functionality of the [Backup and Migrate](https://www.drupa
 
 When utilizing [Islandora Bagit](https://github.com/islandora/islandora_bagit) users can configure where their bags are stored (eg. sites/default/files/bags) which makes them accessible to the [Backup and Migrate](https://www.drupal.org/project/backup_migrate) module.
 
-To get a proof of concept pulled together I think there are two use cases we should investigate:
+To get a proof of concept pulled together I think there are two use cases we can investigate:
 
 * individual object packaged as a Bag backed up to a service like Amazon S3 (in theory the current set of modules/functionality should support this)
 * serialized objects (eg. an Islandora collection) stored in a single Bag backed up to Amazon Glacier.
@@ -123,14 +126,21 @@ As a starting point we may want to consider limiting our BagIt configuration to 
 
 This approach will require additional thought.  The potential benefits of this approach include:
 
-* the user can be selective (eg. only Bag the OBJ and MODS ds)
+* the user can be selective (eg. only Bag the OBJ, MODS, POLICY and generated PREMIS datastreams).
 * each datastream will be stored individually within the Bag and will have its own checksum.
 * complicates the restore process. Would we need to embed the associated Islandora CModel as part of the bag? Would we bag up objects based on their content models? eg. use a directory structure to separate those out? Additional layers of admin screens would be needed.
 * the B&M module provides a note field for the backup ... would we insert cmodel details there?
 
+**Issues and Further Discussion**
+* what is reasonable re: size of backup? Would it need to be chunked / optomized in some way ... how do we accommodate a backup that may take days?
+* we don't accommodate backup of the application stack in the proposal
+ * eg the fedora app and it's configs, solr configs and index, etc 
+* security
+ * while in Fedora, object XACML policies are respected. When in a Bag, the original applied security is lost.
+* what is the frequency of backups?
+* what are the cost factors for an S3 / Glacier implementation?
+* the restore piece is thin and needs further thought
 
-
-Further discussion ?
 
 
 
